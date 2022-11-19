@@ -4,11 +4,11 @@
 //#include "DiscoParty/Takeonme.cpp"
 //#include "DiscoParty/Thelionsleepstonight.cpp"
 //#include "DiscoParty/MerryChristmas.cpp"
-//#include "DiscoParty/MiiChannel.cpp"
+#include "DiscoParty/MiiChannel.cpp"
 //#include "DiscoParty/Pinkpanther.cpp"
 //#include "DiscoParty/GameofThrones.cpp"
 //#include "DiscoParty/KeyboardCat.cpp"
-#include "DiscoParty/ProfessorLayton.cpp"
+//#include "DiscoParty/ProfessorLayton.cpp"
 //#include "DiscoParty/SuperMarioBros.cpp"
 #include <Servo.h>
 #include <Braccio.h>
@@ -22,8 +22,10 @@ Servo gripper;
 PickAndPlaceRoutine Routine;
 RoboterControl Controls;
 int start = 1;
-int modus = 1; // 0 = Pick-And-Place ; 1 = Control ; 2 = Disco ; 3 = Stoerung
+int modus ; // 0 = Pick-And-Place ; 1 = Control ; 2 = Disco ; 3 = Stoerung
 
+const int Fototransistor = A0;
+int Helligkeit = 0;
 
 
 void setup(){
@@ -33,11 +35,46 @@ void setup(){
   pinMode(4, OUTPUT); // gelbe LED fuer "Control"-Modus
   pinMode(5, OUTPUT); // gruene LED fuer "Pick-And-Place"-Modus
   pinMode(6, OUTPUT); // rote LED fuer "Stoerung"-Modus
-
+  pinMode(8, INPUT); // Taster fuer "Pick-And-Place"-Modus
+  pinMode(9, INPUT); // Taster fuer "Control"-Modus
+  pinMode(10, INPUT); // Taster fuer "Disco"-Modus
+  
 
 };
  
 void loop(){
+
+  int PickPlaceTaster = digitalRead(8); // Tasterzustand einlesen
+  int ControlTaster = digitalRead(9); // Tasterzustand einlesen
+  int DiscoTaster = digitalRead(10); // Tasterzustand einlesen
+  Helligkeit = analogRead(Fototransistor);
+
+  //  output info to te serial monitor
+  Serial.print("Helligkeit: ");
+  Serial.println(Helligkeit);
+
+
+  if (PickPlaceTaster == HIGH) { 
+    Serial.print("P");
+    modus = 0;
+  } 
+  if (ControlTaster == HIGH) { 
+    Serial.print("C");
+    modus = 1;
+  } 
+  if (DiscoTaster == HIGH) { 
+    Serial.print("D");
+    modus = 2;
+  } 
+  if(PickPlaceTaster == LOW && ControlTaster == LOW && DiscoTaster == LOW) { 
+    Serial.print("LOW");
+    modus = 3;
+    } 
+  if (Helligkeit < 30){
+    Serial.println("Licht aus");
+    modus = 3;
+  }
+
 
   switch(modus) {
 
@@ -86,7 +123,7 @@ void loop(){
       digitalWrite(5, LOW);
       digitalWrite(6, HIGH);
       delay(2000);
-      Serial.println("Störung");
+      Serial.println("Standby");
 
   }
 
