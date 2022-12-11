@@ -32,10 +32,10 @@ class PickAndPlaceRoutine {
           delay(1000);
 
           // Bewegt den Schwamm 
-          Braccio.ServoMovement(20,           0,  90, 180, 180,  90,   10);
+          Braccio.ServoMovement(20,           0,  80, 180, 180,  90,   10);
 
           // Schließt den Greifer, um den Schwamm anzuheben 
-          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  73 );
+          Braccio.ServoMovement(10,           0,  80, 180, 180,  90,  73 );
 
           // Bewegt den Schwamm nach oben
           Braccio.ServoMovement(20,         0,   45, 135,  45,  0, 73);
@@ -88,10 +88,10 @@ class PickAndPlaceRoutine {
           delay(1000);
 
           // Bewegt den Schwamm 
-          Braccio.ServoMovement(20,           0,  90, 180, 180,  90,   10);
+          Braccio.ServoMovement(20,           0,  100, 180, 180,  90,   10);
 
           // Schließt den Greifer, um den Schwamm anzuheben 
-          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  73 );
+          Braccio.ServoMovement(10,           0,  100, 180, 180,  90,  73 );
 
           // Bewegt den Schwamm nach oben
           Braccio.ServoMovement(20,         0,   45, 135,  45,  0, 73);

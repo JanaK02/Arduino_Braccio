@@ -1,9 +1,8 @@
 #include "Dancinglights.cpp"
-#include "Dancingrobot.cpp"
 /* 
   Mii Channel's theme 
-  Connect a piezo buzzer or speaker to pin 11 or select a new pin.
-  More songs available at https://github.com/robsoncouto/arduino-songs                                            
+  Verbindet einen Piezo-Summer mit PIN13
+  Quelle: https://github.com/robsoncouto/arduino-songs                                          
                                               
                                               Robson Couto, 2019
 */
@@ -213,16 +212,17 @@ void music() {
     }
 
     // Funktion fuer Lichter -> tanzend zur Musik
-    dancinglights();
+    dancinglights(); 
 
     // we only play the note for 90% of the duration, leaving 10% as a pause
     tone(buzzer, melody[thisNote], noteDuration*0.9);
-
+    
     // Wait for the specief duration before playing the next note.
     delay(noteDuration);
     
     // stop the waveform generation before the next note.
     noTone(buzzer);
+
   }
   
 }

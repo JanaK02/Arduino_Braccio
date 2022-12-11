@@ -1,16 +1,6 @@
 #include "PickAndPlace/PickAndPlaceRoutine.h"
 #include "ControlRoboter/RoboterControl.h"
-//#include "DiscoParty/Nevergonnagiveyouup.cpp"
-//#include "DiscoParty/Takeonme.cpp"
-//#include "DiscoParty/Thelionsleepstonight.cpp"
-//#include "DiscoParty/MerryChristmas.cpp"
-//#include "DiscoParty/MiiChannel.cpp"
-//#include "DiscoParty/Pinkpanther.cpp"
-//#include "DiscoParty/GameofThrones.cpp"
-//#include "DiscoParty/KeyboardCat.cpp"
-//#include "DiscoParty/ProfessorLayton.cpp"
-//#include "DiscoParty/SuperMarioBros.cpp"
-#include "DiscoParty/Threading.cpp"
+#include "DiscoParty/Dancingrobot.cpp"
 #include <Servo.h>
 #include <Braccio.h>
 
@@ -58,7 +48,6 @@ const int controlPoti = A3;
 int controlspeed;
 
 
-
 /******************************************************************************************** 
   Setup -> Deklarierung der einzelnen PINs und Initialiserung des Braccio Roboterarmes
 **********************************************************************************************/
@@ -80,7 +69,6 @@ void setup(){
 
   // Initialisierung des Braccio Roboterarmes mit "Soft-Start"
   Braccio.begin(SOFT_START_DISABLED);
-
   
 
 };
@@ -173,7 +161,8 @@ void loop(){
       Serial.println("Disco");
 
       // Aufruf der Music/Disco-Methode
-      thread();
+      dancing();
+
       break;
     
     // Standby

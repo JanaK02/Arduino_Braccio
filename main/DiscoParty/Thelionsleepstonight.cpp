@@ -1,8 +1,8 @@
 #include "Dancinglights.cpp"
 /* 
   The Lion sleeps tonight (A-weema-weh) 
-  Connect a piezo buzzer or speaker to pin 11 or select a new pin.
-  More songs available at https://github.com/robsoncouto/arduino-songs                                            
+  Verbindet einen Piezo-Summer mit PIN13
+  Quelle: https://github.com/robsoncouto/arduino-songs                                              
                                               
                                               Robson Couto, 2019
 */

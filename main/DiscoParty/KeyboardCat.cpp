@@ -1,8 +1,8 @@
 #include "Dancinglights.cpp"
 /* 
   Keyboard cat
-  Connect a piezo buzzer or speaker to pin 11 or select a new pin.
-  More songs available at https://github.com/robsoncouto/arduino-songs                                            
+  Verbindet einen Piezo-Summer mit PIN13
+  Quelle: https://github.com/robsoncouto/arduino-songs                                             
                                               
                                               Robson Couto, 2019
 */
