@@ -1,6 +1,6 @@
 void dancinglights(){
-    digitalWrite(5, !digitalRead(5));
-    digitalWrite(6, !digitalRead(6));
+    digitalWrite(2, !digitalRead(2));
     digitalWrite(4, !digitalRead(4));
-    digitalWrite(3, !digitalRead(3));
+    digitalWrite(7, !digitalRead(7));
+    digitalWrite(8, !digitalRead(8));
 }

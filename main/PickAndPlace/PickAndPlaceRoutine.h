@@ -9,12 +9,11 @@ class PickAndPlaceRoutine {
     Servo wrist_rot;
     Servo wrist_ver;
     Servo gripper;
-    int start;
 
   public:
-    void Routine(int start){
-        if(start == 1 ) {
-          Braccio.begin();
+    void Routine(){
+        
+          
           /*
           Step Delay: a milliseconds delay between the movement of each servo.  Allowed values from 10 to 30 msec.
           M1=base degrees. Allowed values from 0 to 180 degrees
@@ -25,36 +24,88 @@ class PickAndPlaceRoutine {
           M6=gripper degrees. Allowed values from 10 to 73 degrees. 10: the toungue is open, 73: the gripper is closed.
           */
 
-          //Starting position
+          // Erster Schwamm
                               //(step delay  M1 , M2 , M3 , M4 , M5 , M6);
           Braccio.ServoMovement(20,           0,  45, 180, 180,  90,  10);
           
-          //Wait 1 second
+          // Warte 1 Sekunde
           delay(1000);
 
-          //The braccio moves to the sponge. Only the M2 servo will moves
+          // Bewegt den Schwamm 
           Braccio.ServoMovement(20,           0,  90, 180, 180,  90,   10);
 
-          //Close the gripper to take the sponge. Only the M6 servo will moves
-          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  60 );
+          // Schließt den Greifer, um den Schwamm anzuheben 
+          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  73 );
 
-          //Brings the sponge upwards.
-          Braccio.ServoMovement(20,         0,   45, 180,  45,  0, 60);
+          // Bewegt den Schwamm nach oben
+          Braccio.ServoMovement(20,         0,   45, 135,  45,  0, 73);
 
-          //Show the sponge. Only the M1 servo will moves
-          Braccio.ServoMovement(20,         180,  45, 180,   45,   0,  60);
+          // Bewegt den Schwamm ueber den Becher
+          Braccio.ServoMovement(20,         90,   135, 30,  0,  90, 73);
 
-          //Return to the start position.
-          Braccio.ServoMovement(20,         0,   90, 180,  180,  90, 60);
-
-          //Open the gripper
-          Braccio.ServoMovement(20,         0,   90, 180,  180,  90, 10 );
-
-      }
-      else if (start == 0){
-         //Wait 1 second
+          // Warte 1 Sekunde
           delay(1000);
-      }
+
+          // Laesst den Schwamm in den Becher fallen
+          Braccio.ServoMovement(20,         90,   135, 30,  0,  90, 10);
+
+
+
+
+          // Zweiter Schwamm
+                              //(step delay  M1 , M2 , M3 , M4 , M5 , M6);
+          Braccio.ServoMovement(20,           0,  45, 180, 180,  90,  10);
+          
+          // Warte 1 Sekunde
+          delay(1000);
+
+          // Bewegt den Schwamm 
+          Braccio.ServoMovement(20,           0,  90, 180, 180,  90,   10);
+
+          // Schließt den Greifer, um den Schwamm anzuheben 
+          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  73 );
+
+          // Bewegt den Schwamm nach oben
+          Braccio.ServoMovement(20,         0,   45, 135,  45,  0, 73);
+
+          // Bewegt den Schwamm ueber den Becher
+          Braccio.ServoMovement(20,         45,   135, 30,  0,  90, 73);
+
+          // Warte 1 Sekunde
+          delay(1000);
+
+          // Laesst den Schwamm in den Becher fallen
+          Braccio.ServoMovement(20,         45,   135, 30,  0,  90, 10);
+
+
+
+
+          // Dritter Schwamm
+                              //(step delay  M1 , M2 , M3 , M4 , M5 , M6);
+          Braccio.ServoMovement(20,           0,  45, 180, 180,  90,  10);
+          
+          // Warte 1 Sekunde
+          delay(1000);
+
+          // Bewegt den Schwamm 
+          Braccio.ServoMovement(20,           0,  90, 180, 180,  90,   10);
+
+          // Schließt den Greifer, um den Schwamm anzuheben 
+          Braccio.ServoMovement(10,           0,  90, 180, 180,  90,  73 );
+
+          // Bewegt den Schwamm nach oben
+          Braccio.ServoMovement(20,         0,   45, 135,  45,  0, 73);
+
+          // Bewegt den Schwamm ueber den Becher
+          Braccio.ServoMovement(20,         0,   135, 30,  0,  90, 73);
+
+          // Warte 1 Sekunde
+          delay(1000);
+
+          // Laesst den Schwamm in den Becher fallen
+          Braccio.ServoMovement(20,         0,   135, 30,  0,  90, 10);
+
+      
     }
 
 };

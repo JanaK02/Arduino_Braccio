@@ -1,4 +1,5 @@
 #include "Dancinglights.cpp"
+#include "Dancingrobot.cpp"
 /* 
   Mii Channel's theme 
   Connect a piezo buzzer or speaker to pin 11 or select a new pin.
@@ -103,7 +104,7 @@
 int tempo = 114;
 
 // change this to whichever pin you want to use
-int buzzer = 11;
+int buzzer = 13;
 
 // notes of the moledy followed by the duration.
 // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
@@ -223,4 +224,5 @@ void music() {
     // stop the waveform generation before the next note.
     noTone(buzzer);
   }
+  
 }
