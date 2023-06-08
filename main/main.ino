@@ -120,7 +120,7 @@ void loop(){
       Serial.println("Pick-And-Place"); // Bisher nur eine Bewegung
 
       // Aufruf der PickAndPlace-Routine
-      Routine.Routine();
+      Routine.Routine(3);
       break;
 
     // Control Roboter
