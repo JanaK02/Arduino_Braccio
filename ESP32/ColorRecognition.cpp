@@ -40,7 +40,7 @@ int ColorRec::led_color(int s0,int s1,int s2,int s3,int out,int redLED,int green
     Serial.print(blue, DEC);
    
    // Hier folgen die Befehle für die LEDs
-    if (red < blue && red < green && red < 20) //Wenn der Filterwert für rot //kleiner ist als alle anderen Werte..
+    if (red < blue && red < green && red < 20 && green > 15) //Wenn der Filterwert für rot //kleiner ist als alle anderen Werte..
     {
         Serial.println(" – (Rote Farbe)"); //..soll “Rote Farbe“ am seriellen //Monitor angezeigt werden und..
         digitalWrite(redLED, HIGH); //…ie rote LED leuchtet auf, die anderen
@@ -56,7 +56,7 @@ int ColorRec::led_color(int s0,int s1,int s2,int s3,int out,int redLED,int green
         digitalWrite(blueLED, HIGH);
         colorResult = 3;
     }
-    else if (green < red && green < blue)
+    else if (green < red && green < blue || green < blue && green < 15)
     {
         Serial.println(" – (Gruene Farbe)");
         digitalWrite(redLED, LOW);
@@ -70,10 +70,6 @@ int ColorRec::led_color(int s0,int s1,int s2,int s3,int out,int redLED,int green
     }
 
     delay(300);
-
-    digitalWrite(redLED, LOW); //…alle LEDs ausschalten
-    digitalWrite(greenLED, LOW);
-    digitalWrite(blueLED, LOW);
 
     return colorResult;
 
