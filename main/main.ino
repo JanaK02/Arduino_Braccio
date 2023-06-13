@@ -1,13 +1,51 @@
+#include <WiFiNINA.h>
+#include <PubSubClient.h>
+#include "ThingSpeak.h"
+#include <Servo.h>
+#include <Braccio.h>
+#include "Credentials/Credentials.h" // Einbinden der SSID, der ChannelNumber, usw.
 #include "PickAndPlace/PickAndPlaceRoutine.h"
 #include "ControlRoboter/RoboterControl.h"
 #include "DiscoParty/Dancingrobot.cpp"
-#include <Servo.h>
-#include <Braccio.h>
 
-#define PickAndPlace 44 // Analog Wert des Tasters (Pin A0)
-#define Control 106 // Analog Wert des Tasters (Pin A0)
-#define Disco 178 // Analog Wert des Tasters (Pin A0)
+
+#define PickAndPlace 45 // Analog Wert des Tasters (Pin A0)
+#define Control 108 // Analog Wert des Tasters (Pin A0)
+#define Disco 180 // Analog Wert des Tasters (Pin A0)
 #define Standby 0 // Deklarierter Wert fuer den Wechsel in Standby
+
+// WLAN Einstellungen
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWD;
+
+// Deklarierung der WiFi-Instanz
+WiFiClient arduinoClient;
+
+// MQTT Broker Einstellungen
+const char* mqtt_server = MQTT_Server;
+const char* mqtt_user = MQTT_User;
+const char* mqtt_password = MQTT_Passwd;
+
+// Deklarierung der PubSub-Instanz
+PubSubClient client(arduinoClient);
+
+// MQTT Topics
+#define InPosition_Topic "arduino/inposition"
+#define Color_Topic "esp/color"
+
+// Deklarierung der Variable fuer die Farbe der Schwaemme
+char Color = '0';
+
+// ThingSpeak Channel Einstellungen
+unsigned long myChannelNumber = CH_Number; // Kanalnummer
+const char* myWriteAPIKey = APIKey_Write; // API Schluessel zum Schreiben
+const char* myReadAPIKey = APIKey_Read; // API Schluessel zum Lesen
+
+// Deklarierung der Thingspeak-Instanz
+WiFiClient thinkspeak;
+
+// Deklarierung der Variable fuer das Senden der ThingSpeak-Nachricht
+int httpCode;
 
 // Initialisierung der Servos des Braccio Roboterarmes
 Servo base;
@@ -48,6 +86,47 @@ const int controlPoti = A3;
 int controlspeed;
 
 
+
+/**************************************************************************
+ Funktion zum Verbindungsaufbau mit MQTT
+**************************************************************************/
+void mqttconnect() {
+  /* MQTT Schleife (Verbindung aufbauen, Topic Subscribe, Wiederholter Verbindungsaufbau bei Abbruch nach Schleife). */
+  while (!client.connected()) {
+    Serial.print("MQTT Verbindung herstellen .... ");
+    String clientId = "ArduinoClient";
+    /* Verbindung mit Mqtt-Nutzername und Mqtt-Passwort */
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
+      Serial.println("VERBUNDEN");
+      client.subscribe(Color_Topic);
+    } else {
+      Serial.println("MQTT Verbindung fehlgeschlagen, erneuter Verbindungsaufbau in 5 Sekunden....");
+      delay(5000);
+    }
+  }
+}
+
+
+
+void receivedCallback(char* topic, byte* payload, unsigned int length) 
+{
+  Serial.print("Message arrived in topic: ");
+  Serial.println(Color_Topic);
+
+  Serial.print("Message:");
+  for (int i = 0; i < length; i++) 
+  {
+    Serial.print((char)payload[i]);
+    Color = (char)payload[i];
+
+  }
+
+  Serial.println();
+  Serial.println("-----------------------");
+ 
+}
+
+
 /******************************************************************************************** 
   Setup -> Deklarierung der einzelnen PINs und Initialiserung des Braccio Roboterarmes
 **********************************************************************************************/
@@ -70,6 +149,29 @@ void setup(){
   // Initialisierung des Braccio Roboterarmes mit "Soft-Start"
   Braccio.begin(SOFT_START_DISABLED);
   
+  // Verbindungsaufbau mit konfigurierten WLAN
+  Serial.println("Verbindung zu Wlan Netzwerk. SSID: " + String(ssid)  );
+  delay(500);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println(" .");
+  }
+
+  // Konfiguration MQTT Server mit Hostname und Port
+  client.setServer(mqtt_server, 1883);
+
+  // Verbindung zur Thingspeak herstellen
+  ThingSpeak.begin(thinkspeak);
+
+  // Serielle Ausgabe zur erfolgreichen Verbindung
+  Serial.println("");
+  Serial.println("WLAN VERBUNDEN. ");
+  Serial.print("IP Adresse: ");
+  Serial.println(WiFi.localIP());
+
+
+  client.setCallback(receivedCallback);
 
 };
  
@@ -79,6 +181,11 @@ void setup(){
 **********************************************************************************************/
 
 void loop(){
+
+  // Erneuter Verbindungsaufbau, sofern MQTT Verbindung abgebrochen ist
+  if (!client.connected()) {
+    mqttconnect();
+  }
 
   // Auslesen des Fototransistors, Zuweisung der Variable helligkeit
   helligkeit = analogRead(fototransistor);
@@ -100,12 +207,15 @@ void loop(){
     Serial.println("Licht aus");
     modus = Standby;
   }
-
-
-  switch(modus) {
+  client.loop();
+  Color = '0';
 
     // Pick-And-Place Routine
-    case PickAndPlace:
+    if(modus == PickAndPlace)
+    {
+      // Schreiben des Modus in die Cloud, Wert = 1 steht fuer PickAndPlace
+      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 1, myWriteAPIKey);
+
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
       Serial.println(helligkeit);
@@ -120,11 +230,71 @@ void loop(){
       Serial.println("Pick-And-Place"); // Bisher nur eine Bewegung
 
       // Aufruf der PickAndPlace-Routine
-      Routine.Routine(3);
-      break;
+      // Aufheben des ersten Schwammes
+      Routine.RoutineFirst();
+      Routine.SensorPosition(); // Bewegung ueber den Sensor
+      delay(2000);
+      client.publish(InPosition_Topic, "1"); // Signalisiert, dass der ESP starten kann
+      client.loop();
+      Color = '0';
+      while(Color == '0')
+      {
+         client.loop();   
+          if (!client.connected()) 
+          {
+            mqttconnect();
+          };
+      }
+      client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
+      Routine.ColorSort(Color); // Methode zur Sortierung
+      Color = '0';
+
+      // Aufheben des zweiten Schwammes
+      Routine.RoutineSecond();
+      Routine.SensorPosition(); // Bewegung ueber den Sensor
+      delay(2000);
+      client.publish(InPosition_Topic, "1"); // Signalisiert, dass der ESP starten kann
+      client.loop();
+      Color = '0';
+      while(Color == '0')
+      {
+         client.loop();
+          if (!client.connected()) 
+          {
+            mqttconnect();
+          };
+      }
+      client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
+      Routine.ColorSort(Color); // Methode zur Sortierung
+      Color = '0';
+
+      // Aufheben des dritten Schwammes
+      Routine.RoutineThird();
+      Routine.SensorPosition(); // Bewegung ueber den Sensor
+      delay(2000);
+      client.publish(InPosition_Topic, "1"); // Signalisiert, dass der ESP starten kann
+      client.loop();
+      Color = '0';
+      while(Color == '0')
+      {
+         client.loop();
+          if (!client.connected()) 
+          {
+            mqttconnect();
+          };
+      }
+      client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
+      Routine.ColorSort(Color); // Methode zur Sortierung
+      Color = '0';
+
+    };
 
     // Control Roboter
-    case Control:
+    while(modus == Control)
+    {
+      // Schreiben des Modus in die Cloud, Wert = 2 steht fuer Control
+      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 2, myWriteAPIKey);
+
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
       Serial.println(helligkeit);
@@ -139,13 +309,17 @@ void loop(){
       Serial.println("Control");
 
       // Aufruf der Controlling-Methode
-      //if((modus != PickAndPlace) || (modus != Disco) || (modus != Standby)){
-        Controls.Controlling(controlroboter, controlspeed); // Problem: Bisher muss Modus-Taster noch gedrueckt werden
-      //}
-      break;
+        Controls.Controlling(controlroboter, controlspeed);
+
+        modus = analogRead(modusTaster);
+    };
 
     // Disco Party
-    case Disco:
+    if(modus == Disco)
+    {
+      // Schreiben des Modus in die Cloud, Wert = 2 steht fuer Disco
+      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 3, myWriteAPIKey);
+
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
       Serial.println(helligkeit);
@@ -163,10 +337,14 @@ void loop(){
       // Aufruf der Music/Disco-Methode
       dancing();
 
-      break;
+    };
     
     // Standby
-    case Standby:
+    if (modus == Standby)
+    {
+      // Schreiben des Modus in die Cloud, Wert = 0 steht fuer Standby
+      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 0, myWriteAPIKey);
+
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
       Serial.println(helligkeit);
@@ -179,8 +357,8 @@ void loop(){
 
       // Serielle Ausgabe des aktiven Modus
       Serial.println("Standby");
-      break;
+    };
 
-  }
+    client.loop();
 
 }

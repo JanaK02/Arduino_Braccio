@@ -10,6 +10,8 @@ const char* password = WIFI_PASSWD;
 
 // MQTT Broker Einstellungen
 const char* mqtt_server = MQTT_Server;
+const char* mqtt_user = MQTT_User;
+const char* mqtt_password = MQTT_Passwd;
 
 // ThingSpeak Channel Einstellungen
 unsigned long myChannelNumber = CH_Number; // Kanalnummer
@@ -107,7 +109,6 @@ void loop() {
   delay(500);
   client.loop();
 
-
 }
 
 
@@ -120,7 +121,7 @@ void mqttconnect() {
     Serial.print("MQTT Verbindung herstellen .... ");
     String clientId = "ESP32Client";
     /* Verbindung mit Mqtt-Nutzername und Mqtt-Passwort */
-    if (client.connect(clientId.c_str(), "emqx", "public")) {
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
       Serial.println("VERBUNDEN");
     } else {
       Serial.println("MQTT Verbindung fehlgeschlagen, erneuter Verbindungsaufbau in 5 Sekunden....");

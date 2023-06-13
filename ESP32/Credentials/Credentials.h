@@ -7,6 +7,8 @@
 #define APIKey_Write "J5QESOMAVHS0JS3E"
 #define APIKey_Read "JZ8VNYXMRYXOUKQV"
 #define MQTT_Server "broker.emqx.io"
+#define MQTT_User "emqx"
+#define MQTT_Passwd "public"
 
 
 #endif

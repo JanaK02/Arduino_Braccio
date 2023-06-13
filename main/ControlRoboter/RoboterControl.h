@@ -1,12 +1,12 @@
 #include <Braccio.h>
 #include <Servo.h>
 
-#define M1 20 // Analog Wert des Tasters (Pin A1) 220 Ohm
-#define M2 51 // Analog Wert des Tasters (Pin A1) 560 Ohm
-#define M3 91 // Analog Wert des Tasters (Pin A1) 1k Ohm
-#define M4 217 // Analog Wert des Tasters (Pin A1) 2.7k Ohm
-#define M5 325 // Analog Wert des Tasters (Pin A1) 4.7k Ohm
-#define M6 440 // Analog Wert des Tasters (Pin A1) 7.5k Ohm
+#define M1 22 // Analog Wert des Tasters (Pin A1) 220 Ohm
+#define M2 53 // Analog Wert des Tasters (Pin A1) 560 Ohm
+#define M3 92 // Analog Wert des Tasters (Pin A1) 1k Ohm
+#define M4 218 // Analog Wert des Tasters (Pin A1) 2.7k Ohm
+#define M5 326 // Analog Wert des Tasters (Pin A1) 4.7k Ohm
+#define M6 441 // Analog Wert des Tasters (Pin A1) 7.5k Ohm
 
 
 class RoboterControl {
@@ -66,7 +66,7 @@ class RoboterControl {
                break;
 
           case M2: 
-          if(motor2 >= 165){
+               if(motor2 >= 165){
                     motor2 = motor2 - 10;
                     Braccio.ServoMovement(geschwindigkeit, motor1, motor2, motor3, motor4, motor5, motor6);
                     // Zuruecksetzen auf Anfangsposition des Motors 2
