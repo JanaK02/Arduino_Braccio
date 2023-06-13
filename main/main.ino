@@ -247,6 +247,7 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
+      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
       Color = '0';
 
       // Aufheben des zweiten Schwammes
@@ -266,6 +267,7 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
+      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
       Color = '0';
 
       // Aufheben des dritten Schwammes
@@ -285,6 +287,7 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
+      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
       Color = '0';
 
     };
