@@ -3,6 +3,7 @@
 #include "ThingSpeak.h"
 #include <Servo.h>
 #include <Braccio.h>
+#include <math.h>
 #include "Credentials/Credentials.h" // Einbinden der SSID, der ChannelNumber, usw.
 #include "PickAndPlace/PickAndPlaceRoutine.h"
 #include "ControlRoboter/RoboterControl.h"
@@ -43,9 +44,9 @@ const char* myReadAPIKey = APIKey_Read; // API Schluessel zum Lesen
 
 // Deklarierung der Thingspeak-Instanz
 WiFiClient thinkspeak;
-
-// Deklarierung der Variable fuer das Senden der ThingSpeak-Nachricht
-int httpCode;
+int cloud_modus;
+int cloud_color;
+int cloud_helligkeit;
 
 // Initialisierung der Servos des Braccio Roboterarmes
 Servo base;
@@ -200,21 +201,27 @@ void loop(){
   controlspeed = analogRead(controlPoti);
 
   // Bei Dunkelheit wird der Standby-Modus aktiviert
-  if (helligkeit < 10){
+  if (helligkeit < 16){
     // Ausgabe der Variable helligkeit auf dem seriellen Monitor
     Serial.print("Helligkeit: ");
     Serial.println(helligkeit);
     Serial.println("Licht aus");
     modus = Standby;
   }
+  cloud_helligkeit = (log10(helligkeit)/log10(2))*10;
+  ThingSpeak.writeField(myChannelNumber, 3, cloud_helligkeit, myWriteAPIKey);
+
   client.loop();
   Color = '0';
 
+  switch(modus)
+  {
     // Pick-And-Place Routine
-    if(modus == PickAndPlace)
-    {
+    case PickAndPlace:
+    
+      cloud_modus = 1;
       // Schreiben des Modus in die Cloud, Wert = 1 steht fuer PickAndPlace
-      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 1, myWriteAPIKey);
+      ThingSpeak.writeField(myChannelNumber, 4, cloud_modus, myWriteAPIKey);
 
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
@@ -247,7 +254,8 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
-      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
+      cloud_color = Color-48;
+      ThingSpeak.writeField(myChannelNumber, 5, cloud_color, myWriteAPIKey); // ASCII-Code: Zahl 1 = 49; 2 = 50; 3 = 51
       Color = '0';
 
       // Aufheben des zweiten Schwammes
@@ -267,7 +275,8 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
-      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
+      cloud_color = Color-48;
+      ThingSpeak.writeField(myChannelNumber, 5, cloud_color, myWriteAPIKey); // ASCII-Code: Zahl 1 = 49; 2 = 50; 3 = 51
       Color = '0';
 
       // Aufheben des dritten Schwammes
@@ -287,16 +296,18 @@ void loop(){
       }
       client.publish(InPosition_Topic, "0"); // Signalisiert, dass der ESP stoppen kann
       Routine.ColorSort(Color); // Methode zur Sortierung
-      httpCode = ThingSpeak.writeField(myChannelNumber, 2, Color, myWriteAPIKey);
+      cloud_color = Color-48;
+      ThingSpeak.writeField(myChannelNumber, 5, cloud_color, myWriteAPIKey); // ASCII-Code: Zahl 1 = 49; 2 = 50; 3 = 51
       Color = '0';
 
-    };
+    break;
 
     // Control Roboter
-    while(modus == Control)
-    {
+    case Control:
+    
+      cloud_modus = 2;
       // Schreiben des Modus in die Cloud, Wert = 2 steht fuer Control
-      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 2, myWriteAPIKey);
+      ThingSpeak.writeField(myChannelNumber, 4, cloud_modus, myWriteAPIKey);
 
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
@@ -313,15 +324,14 @@ void loop(){
 
       // Aufruf der Controlling-Methode
         Controls.Controlling(controlroboter, controlspeed);
-
-        modus = analogRead(modusTaster);
-    };
+    break;
 
     // Disco Party
-    if(modus == Disco)
-    {
-      // Schreiben des Modus in die Cloud, Wert = 2 steht fuer Disco
-      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 3, myWriteAPIKey);
+    case Disco:
+    
+      cloud_modus = 3;
+      // Schreiben des Modus in die Cloud, Wert = 3 steht fuer Disco
+      ThingSpeak.writeField(myChannelNumber, 4, cloud_modus, myWriteAPIKey);
 
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
@@ -340,13 +350,14 @@ void loop(){
       // Aufruf der Music/Disco-Methode
       dancing();
 
-    };
+    break;
     
     // Standby
-    if (modus == Standby)
-    {
+    case Standby:
+
+      cloud_modus = 0;
       // Schreiben des Modus in die Cloud, Wert = 0 steht fuer Standby
-      httpCode = ThingSpeak.writeField(myChannelNumber, 1, 0, myWriteAPIKey);
+      ThingSpeak.writeField(myChannelNumber, 4, cloud_modus, myWriteAPIKey);
 
       // Ausgabe der Variable helligkeit auf dem seriellen Monitor
       Serial.print("Helligkeit: ");
@@ -360,8 +371,8 @@ void loop(){
 
       // Serielle Ausgabe des aktiven Modus
       Serial.println("Standby");
-    };
-
+    break;
+  };
     client.loop();
 
 }

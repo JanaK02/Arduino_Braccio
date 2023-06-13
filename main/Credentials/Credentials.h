@@ -1,8 +1,8 @@
 #ifndef CREDENTIALS_H
 #define CREDENTIALS_H
 
-#define WIFI_SSID "MarcelHotspot"//"iPhone von Jana"
-#define WIFI_PASSWD "nmwf1701"//"FJK8a91352!"
+#define WIFI_SSID "iPhone von Jana" //"MarcelHotspot"
+#define WIFI_PASSWD "FJK8a91352!" //"nmwf1701"
 #define CH_Number 2001522
 #define APIKey_Write "J5QESOMAVHS0JS3E"
 #define APIKey_Read "JZ8VNYXMRYXOUKQV"
